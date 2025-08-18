@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buisness Manager</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Include Chart.js and jsPDF libraries from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+
+    <!-- ======== LOGIN SCREEN ======== -->
+    <div id="loginScreen">
+        <h1>Buisness Manager</h1>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+            </div>
+            <p id="loginError"></p>
+            <button type="submit" class="login-button">Login</button>
+        </form>
+    </div>
+
+    <!-- ======== MAIN APPLICATION ======== -->
+    <div id="appContainer" class="hidden">
+        <!-- Header -->
+        <header class="main-header">
+            <h1>Buisness Manager</h1>
+            <div class="header-controls">
+                <span id="currentUserDisplay"></span>
+                <button id="logoutButton">Logout</button>
+                <button id="menuToggle">☰</button>
+            </div>
+        </header>
+
+        <!-- Dropdown Menu -->
+        <div id="mainMenu" class="hidden">
+            <!-- Links are dynamically populated by JS -->
+        </div>
+        
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- PAGE: Overview -->
+            <div id="overviewPage" class="page">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h2 id="overviewTitle">Dashboard Overview</h2>
+                        <p style="font-size: 14px; color: #666;">Showing stats since: <span id="statsStartDateDisplay">the beginning</span>.</p>
+                    </div>
+                    <button id="toggleStatsPeriodBtn" class="main-button manager-only">Start New Period</button>
+                </div>
+                <div class="overview-grid">
+                    <div class="stat-card"><h3>Total Goods in Stock</h3><p id="totalStockCount">0</p></div>
+                    <div class="stat-card"><h3 id="totalSoldCountHeader">Total Units Sold</h3><p id="totalSoldCount">0</p></div>
+                    <div class="stat-card"><h3 id="totalSalesValueHeader">Total Sales Value</h3><p id="totalSalesValue">₦0</p></div>
+                    <div class="stat-card profit profit-display" id="cumulativeProfitCard"><h3 id="cumulativeProfitHeader">Cumulative Net Profit</h3><p id="cumulativeProfit">₦0</p></div>
+                </div>
+                <div class="card" style="margin-top: 20px;">
+                    <h3>Monthly Performance</h3>
+                    <canvas id="trendsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- PAGE: Point of Sale (POS) -->
+            <div id="posPage" class="page hidden">
+                <div class="pos-panel">
+                    <div class="pos-panel-header">
+                        <input type="text" id="posProductSearch" placeholder="Search products..." style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid var(--border-color);">
+                    </div>
+                    <div class="pos-panel-body" id="productCatalog">
+                        <!-- Product cards will be injected here -->
+                    </div>
+                </div>
+                <div class="pos-panel">
+                    <div class="pos-panel-header"><h3>Current Sale</h3></div>
+                    <div class="pos-panel-body">
+                        <ul id="cartItems">
+                            <!-- Cart items will be injected here -->
+                        </ul>
+                    </div>
+                    <div class="cart-footer">
+                        <div class="cart-total">
+                            <span>TOTAL</span>
+                            <span id="cartTotalDisplay">₦0.00</span>
+                        </div>
+                        <div class="cart-actions">
+                            <button id="clearCartBtn" class="action-button delete-btn">Clear Cart</button>
+                            <button id="finalizeSaleBtn" class="main-button" disabled>Finalize Sale</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: Product Management -->
+            <div id="productManagementPage" class="page hidden">
+                <h2>Product Management</h2>
+                <button id="addProductBtn" class="main-button">Add New Product</button>
+                <div class="filter-bar"><input type="text" id="productSearchInput" placeholder="Search by product name..."></div>
+                <div style="overflow-x:auto;"><table id="productTable">
+                    <thead><tr><th>Name</th><th>Category</th><th>Buying Price</th><th>Selling Price</th><th>In Stock</th><th>Sold</th><th>Supplier</th><th>Actions</th></tr></thead>
+                    <tbody></tbody>
+                </table></div>
+            </div>
+
+            <!-- PAGE: Sales Log -->
+            <div id="salesLogPage" class="page hidden">
+                <h2>Sales Log</h2>
+                <div class="filter-bar">
+                    <input type="text" id="salesLogSearchInput" placeholder="Search by Invoice # or Customer...">
+                    <input type="date" id="salesLogDateFilter">
+                    <button onclick="renderSalesLog()">Filter</button>
+                    <button id="submitMySalesBtn" class="main-button" onclick="submitMySales()" disabled>Submit My Sales</button>
+                </div>
+                <div style="overflow-x:auto;"><table id="salesLogTable">
+                    <thead></thead>
+                    <tbody></tbody>
+                </table></div>
+            </div>
+
+            <!-- PAGE: Stock Level Monitoring -->
+            <div id="stockLevelPage" class="page hidden">
+                <h2>Stock Level Monitoring</h2>
+                <div style="overflow-x:auto;"><table id="stockLevelTable">
+                    <thead><tr><th>Status</th><th>Product Name</th><th>Qty in Stock</th><th>Low Stock Threshold</th><th>Stock Level</th></tr></thead>
+                    <tbody></tbody>
+                </table></div>
+            </div>
+
+            <!-- PAGE: P&L Tracker -->
+            <div id="plTrackerPage" class="page hidden">
+                <h2>Profit and Loss Tracker</h2>
+                <div class="filter-bar"><label>Select Month:</label><input type="month" id="plMonthFilter"><button onclick="renderPLTracker()">View Report</button></div>
+                <div class="overview-grid">
+                    <div class="stat-card"><h3>Total Revenue</h3><p id="plTotalRevenue">₦0</p></div>
+                    <div class="stat-card"><h3>Cost of Goods Sold</h3><p id="plTotalCost">₦0</p></div>
+                    <div class="stat-card"><h3>Operating Expenses</h3><p id="plTotalExpenses">₦0</p></div>
+                    <div class="stat-card profit profit-display" id="plNetProfitCard"><h3>Net Profit/Loss</h3><p id="plNetProfit">₦0</p></div>
+                </div>
+            </div>
+
+            <!-- PAGE: Purchase History Log -->
+            <div id="purchaseHistoryPage" class="page hidden">
+                <h2>Purchase History Log</h2>
+                <div class="filter-bar">
+                    <label for="purchaseStartDate">From:</label><input type="date" id="purchaseStartDate">
+                    <label for="purchaseEndDate">To:</label><input type="date" id="purchaseEndDate">
+                    <button onclick="renderPurchaseHistory()">Filter</button>
+                    <button id="downloadPurchasePdfBtn" class="main-button">Download as PDF</button>
+                    <button id="downloadPurchaseCsvBtn" class="main-button">Download as CSV</button>
+                </div>
+                <div style="overflow-x:auto;"><table id="purchaseHistoryTable">
+                    <thead><tr><th>Date</th><th>Product</th><th>Qty</th><th>Cost/Item</th><th>Total Cost</th><th>Supplier</th><th>Payment</th></tr></thead>
+                    <tbody></tbody>
+                </table></div>
+            </div>
+            
+            <!-- PAGE: Expenses Manager -->
+            <div id="expensesManagerPage" class="page hidden">
+                <h2>Monthly Expenses Manager</h2>
+                <button id="addExpenseBtn" class="main-button">Add New Expense</button>
+                <div style="overflow-x:auto;"><table id="expensesTable">
+                    <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Actions</th></tr></thead>
+                    <tbody></tbody>
+                </table></div>
+            </div>
+
+            <!-- PAGE: Capital Tracker (Admin Only) -->
+            <div id="capitalTrackerPage" class="page hidden admin-only">
+                <h2>Capital Tracker</h2>
+                <button id="addCapitalTransactionBtn" class="main-button">Add Capital Transaction</button>
+                <div class="overview-grid" style="margin-top: 20px;">
+                    <div class="stat-card"><h3>Initial Capital</h3><p id="initialCapitalDisplay">₦0</p></div>
+                    <div class="stat-card profit"><h3>Total Injections</h3><p id="totalInjectionsDisplay">₦0</p></div>
+                    <div class="stat-card loss"><h3>Total Withdrawals</h3><p id="totalWithdrawalsDisplay">₦0</p></div>
+                    <div class="stat-card profit"><h3>Current Capital</h3><p id="currentCapitalDisplay">₦0</p></div>
+                </div>
+                <div class="card" style="margin-top: 20px;">
+                    <h3>Transaction History</h3>
+                    <div style="overflow-x:auto;"><table id="capitalHistoryTable">
+                        <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Notes</th><th>Actions</th></tr></thead>
+                        <tbody></tbody>
+                    </table></div>
+                </div>
+            </div>
+            
+            <!-- PAGE: Reports & Analytics -->
+            <div id="reportsPage" class="page hidden">
+                <h2>Reports & Analytics</h2>
+                <div class="card">
+                    <h3>Generate Monthly Report</h3>
+                    <div class="filter-bar"><label>Select Month:</label><input type="month" id="reportMonthSelector"><button id="generateReportBtn" class="main-button">Generate & Download</button></div>
+                    <p>Select a month to generate a comprehensive PDF report including Sales, Purchases, Expenses, and Profitability.</p>
+                </div>
+            </div>
+            
+            <!-- PAGE: User Management (Admin Only) -->
+            <div id="userManagementPage" class="page hidden admin-only">
+                <h2>User Management</h2>
+                <button id="addUserBtn" class="main-button">Add New User</button>
+                <div style="overflow-x:auto;"><table id="userTable">
+                    <thead><tr><th>Username</th><th>Role</th><th>Actions</th></tr></thead>
+                    <tbody></tbody>
+                </table></div>
+            </div>
+
+            <!-- PAGE: User Settings -->
+            <div id="userSettingsPage" class="page hidden">
+                <h2>User Settings</h2>
+                <div class="card">
+                    <h3>Change Your Password</h3>
+                    <form id="changePasswordForm" class="modal-form">
+                        <div class="form-group"><label for="currentPassword">Current Password</label><input type="password" id="currentPassword" required></div>
+                        <div class="form-group"><label for="newPassword">New Password</label><input type="password" id="newPassword" minlength="4" required></div>
+                        <div class="form-group"><label for="confirmNewPassword">Confirm New Password</label><input type="password" id="confirmNewPassword" required></div>
+                        <button type="submit" class="main-button">Change Password</button>
+                        <p id="passwordChangeStatus" style="margin-top:10px;"></p>
+                    </form>
+                </div>
+            </div>
+
+        </main>
+        <div><h5>Developed By Charleytech Hub: 09068420849</h5></div>
+    </div>
+
+    <!-- ======== MODALS ======== -->
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal hidden"><div class="modal-content"><span class="modal-close" onclick="closeModal('productModal')">&times;</span><h2 id="productModalTitle">Add Product</h2><form id="productForm" class="modal-form"><input type="hidden" id="productId"><div class="form-group"><label for="productName">Product Name</label><input type="text" id="productName" required></div><div class="form-group"><label for="productCategory">Category</label><input type="text" id="productCategory" required></div><div class="form-group"><label for="buyingPrice">Buying Price (₦)</label><input type="number" id="buyingPrice" min="0" step="0.01" required></div><div class="form-group"><label for="sellingPrice">Selling Price (₦)</label><input type="number" id="sellingPrice" min="0" step="0.01" required></div><div class="form-group"><label for="quantityInStock">Quantity In Stock</label><input type="number" id="quantityInStock" min="0" required></div><div class="form-group"><label for="lowStockThreshold">Low Stock Alert Level</label><input type="number" id="lowStockThreshold" min="0" value="10"></div><div class="form-group"><label for="supplierInfo">Supplier</label><input type="text" id="supplierInfo"></div><div class="form-group" id="purchaseDetailsGroup"><label for="purchaseDate">Date of Purchase</label><input type="date" id="purchaseDate" required><label for="purchasePaymentMode" style="margin-top:10px;">Payment Mode</label><select id="purchasePaymentMode"><option value="Cash">Cash</option><option value="Transfer">Bank Transfer</option><option value="POS">POS</option></select></div><button type="submit" class="main-button">Save Product</button></form></div></div>
+
+    <!-- Expense Modal -->
+    <div id="expenseModal" class="modal hidden"><div class="modal-content"><span class="modal-close" onclick="closeModal('expenseModal')">&times;</span><h2 id="expenseModalTitle">Add Expense</h2><form id="expenseForm" class="modal-form"><input type="hidden" id="expenseId"><div class="form-group"><label for="expenseDate">Date</label><input type="date" id="expenseDate" required></div><div class="form-group"><label for="expenseCategory">Category</label><select id="expenseCategory" required><option value="Rent">Rent</option><option value="Utilities">Utilities (Light, Water)</option><option value="Salaries">Salaries</option><option value="Transport">Transport/Logistics</option><option value="Maintenance">Maintenance</option><option value="Miscellaneous">Miscellaneous</option></select></div><div class="form-group"><label for="expenseDescription">Description</label><input type="text" id="expenseDescription" placeholder="e.g. 'January Electricity Bill'"></div><div class="form-group salary-field"><label for="expenseAmount">Amount (₦)</label><input type="password" id="expenseAmount" min="0" step="0.01" required><span class="toggle-salary-visibility" onclick="toggleSalaryVisibility(this)">👁️</span></div><button type="submit" class="main-button">Save Expense</button></form></div></div>
+    
+    <!-- Capital Modal -->
+    <div id="capitalModal" class="modal hidden"><div class="modal-content"><span class="modal-close" onclick="closeModal('capitalModal')">&times;</span><h2 id="capitalModalTitle">Add Capital Transaction</h2><form id="capitalForm" class="modal-form"><input type="hidden" id="capitalTransactionId"><div class="form-group"><label for="capitalDate">Date</label><input type="date" id="capitalDate" required></div><div class="form-group"><label for="capitalType">Transaction Type</label><select id="capitalType" required><option value="injection">Capital Injection</option><option value="withdrawal">Capital Withdrawal</option><option value="initial">Set/Update Initial Capital</option></select></div><div class="form-group"><label for="capitalAmount">Amount (₦)</label><input type="number" id="capitalAmount" min="0" step="0.01" required></div><div class="form-group"><label for="capitalNotes">Notes (Optional)</label><textarea id="capitalNotes" rows="3"></textarea></div><button type="submit" class="main-button">Save Transaction</button></form></div></div>
+
+    <!-- User Modal (for Add/Edit) -->
+    <div id="userModal" class="modal hidden"><div class="modal-content"><span class="modal-close" onclick="closeModal('userModal')">&times;</span><h2 id="userModalTitle">Add User</h2><form id="userForm" class="modal-form"><input type="hidden" id="userId"><div class="form-group"><label for="userUsername">Username</label><input type="text" id="userUsername" required></div><div class="form-group"><label for="userPassword">Password</label><input type="password" id="userPassword" minlength="4" required></div><div class="form-group"><label for="userRole">Role</label><select id="userRole" required><option value="salesRep">Sales Rep</option><option value="manager">Manager</option><option value="auditor">Auditor</option><option value="admin">Admin</option></select></div><button type="submit" class="main-button">Save User</button></form></div></div>
+    
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="modal hidden"><div class="modal-content"><span class="modal-close" onclick="closeModal('checkoutModal')">&times;</span><h2>Finalize Sale</h2><form id="checkoutForm" class="modal-form"><div class="form-group"><label for="customerName">Customer Name (Optional)</label><input type="text" id="customerName" placeholder="Walk-in Customer"></div><button type="submit" class="main-button">Complete Sale & Get Receipt</button></form></div></div>
+
+    <!-- Receipt Modal -->
+    <div id="receiptModal" class="modal hidden">
+        <div class="modal-content" style="max-width: 500px; padding: 0; background: none; border: none; overflow: visible;">
+            <div id="print-area"><div id="receiptModalContent" class="receipt-container"></div></div>
+            <div class="receipt-buttons">
+                <button class="main-button" onclick="printReceipt()">Print Receipt</button>
+                <button class="action-button delete-btn" onclick="closeModal('receiptModal')">Close</button>
+            </div>
+            <span class="modal-close" onclick="closeModal('receiptModal')">&times;</span>
+        </div>
+    </div>
+    
+    <!-- Performance Pop-up Modal -->
+    <div id="performanceReportModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('performanceReportModal')">&times;</span>
+            <h2>Product Performance Highlights</h2>
+            <div id="performanceReportContent">
+                <!-- Content generated by JS -->
+            </div>
+        </div>
+    </div>
+<script src="script.js"></script>
+</body>
+
+</html>

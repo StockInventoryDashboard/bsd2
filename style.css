@@ -1,0 +1,390 @@
+/* --- Global Styles & Resets --- */
+        :root {
+            --primary-color: #005f73;
+            --secondary-color: #0a9396;
+            --background-color: #f4f4f9;
+            --text-color: #333;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 8px rgba(0,0,0,0.1);
+            --green: #2d9a47;
+            --yellow: #ffb703;
+            --red: #d00000;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+        
+        /* --- Role-Based Visibility --- */
+        .role-salesRep .profit-display,
+        .role-manager .profit-display {
+            display: none !important;
+        }
+        
+        .role-salesRep .manager-only,
+        .role-salesRep .admin-only {
+            display: none !important;
+        }
+        
+        .role-manager .admin-only {
+            display: none !important;
+        }
+
+
+        /* --- Login Screen --- */
+        #loginScreen {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+        #loginScreen h1 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        #loginForm .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        #loginForm label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        #loginForm input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+        }
+        #loginError {
+            color: var(--red);
+            margin-top: 10px;
+            font-size: 14px;
+            height: 1.2em;
+        }
+        .login-button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .login-button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* --- Main App Container --- */
+        #appContainer {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .main-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .main-header h1 {
+            font-size: 24px;
+        }
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        #currentUserDisplay {
+            font-style: italic;
+        }
+        
+        #menuToggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        #logoutButton {
+            background: var(--red);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* --- Main Content & Pages --- */
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .page {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Dropdown Menu --- */
+        #mainMenu {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            overflow: hidden;
+            min-width: 250px;
+        }
+        #mainMenu a {
+            display: block;
+            padding: 12px 25px;
+            color: var(--primary-color);
+            text-decoration: none;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s;
+        }
+        #mainMenu a:last-child {
+            border-bottom: none;
+        }
+        #mainMenu a:hover {
+            background-color: #f0f8ff;
+        }
+        
+        /* --- General UI Components --- */
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+        
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--secondary-color);
+        }
+        .stat-card h3 { font-size: 16px; color: #666; margin-bottom: 10px; }
+        .stat-card p { font-size: 28px; font-weight: bold; color: var(--primary-color); }
+        .stat-card.profit { border-color: var(--green); }
+        .stat-card.profit p { color: var(--green); }
+        .stat-card.loss { border-color: var(--red); }
+        .stat-card.loss p { color: var(--red); }
+        
+        .main-button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .main-button:hover { background-color: var(--secondary-color); }
+        .main-button:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        .action-button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .edit-btn { background-color: var(--secondary-color); }
+        .delete-btn { background-color: var(--red); }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border-color); }
+        th { background-color: #f8f9fa; font-weight: bold; }
+        tr:hover { background-color: #f1f1f1; }
+
+        .filter-bar { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+        .filter-bar input, .filter-bar select, .filter-bar button, .filter-bar label { padding: 10px; border-radius: 5px; border: 1px solid var(--border-color); }
+        .filter-bar label { border: none; padding: 10px 0; }
+        .filter-bar button { background-color: var(--primary-color); color: white; cursor: pointer; border: none; }
+
+        /* --- Point of Sale (POS) / Cart Page --- */
+        #posPage {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            height: calc(100vh - 110px); /* Full height minus header and padding */
+        }
+        .pos-panel { display: flex; flex-direction: column; background: var(--card-bg); border-radius: 8px; box-shadow: var(--shadow); overflow: hidden; }
+        .pos-panel-header { padding: 15px; border-bottom: 1px solid var(--border-color); }
+        .pos-panel-body { flex-grow: 1; overflow-y: auto; padding: 10px; }
+        #productCatalog { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+        .product-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .product-card:hover { transform: translateY(-3px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .product-card.disabled { opacity: 0.5; cursor: not-allowed; background: #f9f9f9; }
+        .product-card-name { font-weight: bold; }
+        .product-card-price { color: var(--green); }
+        .product-card-stock { font-size: 12px; color: #777; }
+        #cartItems { list-style: none; }
+        .cart-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
+        .cart-item-name { flex-grow: 1; }
+        .cart-item-qty { display: flex; align-items: center; gap: 8px; }
+        .cart-item-qty button { width: 25px; height: 25px; border-radius: 50%; border: 1px solid var(--border-color); background: white; cursor: pointer; }
+        .cart-item-total { font-weight: bold; width: 80px; text-align: right; }
+        .cart-item-remove { background: none; border: none; color: var(--red); font-size: 18px; cursor: pointer; }
+        .cart-footer { padding: 15px; border-top: 1px solid var(--border-color); margin-top: auto; }
+        .cart-total { display: flex; justify-content: space-between; font-size: 20px; font-weight: bold; margin-bottom: 15px; }
+        .cart-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        @media (max-width: 900px) {
+            #posPage { grid-template-columns: 1fr; height: auto; }
+        }
+
+        /* --- Modal Styles --- */
+        .modal {
+            position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);
+            display: flex; justify-content: center; align-items: center;
+        }
+        .modal-content { background: var(--card-bg); padding: 30px; border-radius: 10px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; position: relative; }
+        .modal-close { position: absolute; top: 15px; right: 15px; font-size: 24px; font-weight: bold; cursor: pointer; color: #888; }
+        .modal-form .form-group { margin-bottom: 15px; }
+        .modal-form label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .modal-form input, .modal-form select, .modal-form textarea { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 5px; }
+        .salary-field { position: relative; }
+        .toggle-salary-visibility { position: absolute; right: 10px; top: 38px; cursor: pointer; user-select: none;}
+        
+        /* --- REDESIGNED Receipt Modal --- */
+        .receipt-container {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #333;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            justify-items: center;
+            align-items: center;
+            align-content: center;
+            justify-content: center;
+        }
+        .receipt-header {
+            text-align: center;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .receipt-header h2 {
+            font-size: 28px;
+            color: var(--primary-color);
+            margin: 0;
+            font-weight: 700;
+        }
+        .receipt-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .receipt-info div { line-height: 1.6; }
+        .receipt-info span { font-weight: 600; }
+        #receiptItemsTable {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        #receiptItemsTable th, #receiptItemsTable td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        #receiptItemsTable th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        #receiptItemsTable .text-right { text-align: right; }
+        .receipt-total-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid var(--primary-color);
+            text-align: right;
+        }
+        .receipt-total-section p {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 0;
+        }
+        .receipt-footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 13px;
+            color: #777;
+        }
+        .receipt-buttons { text-align: center; margin-top: 20px; display: flex; gap: 10px; justify-content: center;}
+        
+        /* --- Performance Popup Modal --- */
+        #performanceReportModal .modal-content h3 { color: var(--primary-color); margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        #performanceReportModal .modal-content ul { list-style-position: inside; padding-left: 10px; margin-bottom: 20px; }
+        #performanceReportModal .modal-content li { margin-bottom: 8px; }
+        #performanceReportModal .modal-content li span { font-weight: bold; }
+
+        /* --- PRINT STYLES --- */
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area { position: absolute; left: 10; top: 50; width: 50%; margin: 0; padding: 0; }
+            #receiptModal { position: static; box-shadow: none; background: none; }
+            #receiptModal .modal-content { box-shadow: none; border: none; padding: 0; max-width: 50%; max-height: 50%; overflow: visible; }
+            .modal-close, .receipt-buttons { display: none; }
+        }
