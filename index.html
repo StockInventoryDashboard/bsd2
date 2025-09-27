@@ -1659,7 +1659,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     document.getElementById('productSearchInput').addEventListener('input', renderProductManagement);
-    document.getElementById('addProductBtn').addEventListener('click', () => {
+   document.getElementById('addProductBtn').addEventListener('click', () => {
+        if (db.capital.initial <= 0 && currentUser.role === 'admin') {
+            alert('Please set the initial capital before adding products. Go to Capital Tracker to set it.');
+            showPage('capitalTrackerPage'); // Direct admin to capital tracker
+            return;
+        } else if (db.capital.initial <= 0 && currentUser.role !== 'admin') {
+             alert('Initial capital has not been set by an administrator. Products cannot be added yet.');
+             return;
+        }
+
         document.getElementById('productForm').reset();
         document.getElementById('productId').value = '';
         document.getElementById('productModalTitle').textContent = 'Add New Product';
@@ -2105,3 +2114,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </body>
 
 </html>
+
