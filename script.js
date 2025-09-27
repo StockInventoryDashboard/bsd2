@@ -1196,4 +1196,5 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('toggleStatsPeriodBtn').addEventListener('click', toggleStatsPeriod);
     loadDatabase();
     
+
 });
